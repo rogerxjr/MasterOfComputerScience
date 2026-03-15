@@ -3,25 +3,19 @@ import pandas as pd
 import os
 import time
 
-# ==========================================
-# 0. 路径配置 (关键修改！)
-# ==========================================
-# 获取当前脚本(assessment2.py)所在的绝对路径
-# 无论在本地还是云端，这都能定位到 assessment2 文件夹
+# base setting function
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# 辅助函数：生成文件的完整路径
+
 def get_file_path(filename):
     return os.path.join(BASE_DIR, filename)
 
-# ==========================================
-# 1. Core Functions
-# ==========================================
+# core function
+
 def load_questions(filename="questions.txt"):
     """Load questions from the text file."""
     questions = []
     
-    # 使用完整路径
     full_path = get_file_path(filename)
     
     if not os.path.exists(full_path):
@@ -31,10 +25,10 @@ def load_questions(filename="questions.txt"):
     with open(full_path, 'r', encoding='utf-8') as file:
         for line in file:
             parts = line.strip().split('|')
-            # Ensure the line has enough parts (Type|Q|Opt1|Opt2|Opt3|Opt4|Ans|Img)
+            # load the question, split by '|'
             if len(parts) < 7: continue
             
-            # 处理图片路径：如果文件名存在，将其转换为完整路径
+
             img_name = parts[7] if len(parts) >= 8 and parts[7].strip() != "" else None
             
             q_data = {
@@ -42,14 +36,13 @@ def load_questions(filename="questions.txt"):
                 "question": parts[1],
                 "options": [parts[2], parts[3], parts[4], parts[5]],
                 "answer": parts[6],
-                "image": img_name # 这里只存文件名，展示时再拼接路径
+                "image": img_name 
             }
             questions.append(q_data)
     return questions
 
 def save_result_to_csv(name, score, answers):
-    """Append user result to CSV file."""
-    # 使用完整路径
+    # Append user result to CSV file.
     csv_path = get_file_path("results.csv")
     
     file_exists = os.path.exists(csv_path)
@@ -160,7 +153,7 @@ def main():
 
     # Display Image (if Type B)
     if q['type'] == "Type B" and q['image']:
-        # 拼接图片的完整路径
+        
         img_full_path = get_file_path(q['image'])
         
         if os.path.exists(img_full_path):
