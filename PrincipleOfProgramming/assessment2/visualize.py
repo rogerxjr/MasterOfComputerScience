@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import matplotlib
-matplotlib.use('Agg') # 必须保留，防止白屏
+matplotlib.use('Agg') 
 import matplotlib.pyplot as plt
 import seaborn as sns
 

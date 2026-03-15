@@ -4,34 +4,55 @@ import os
 import time
 
 # ==========================================
+# 0. 路径配置 (关键修改！)
+# ==========================================
+# 获取当前脚本(assessment2.py)所在的绝对路径
+# 无论在本地还是云端，这都能定位到 assessment2 文件夹
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# 辅助函数：生成文件的完整路径
+def get_file_path(filename):
+    return os.path.join(BASE_DIR, filename)
+
+# ==========================================
 # 1. Core Functions
 # ==========================================
 def load_questions(filename="questions.txt"):
     """Load questions from the text file."""
     questions = []
-    if not os.path.exists(filename):
-        st.error(f"Error: File '{filename}' not found. Please check the path.")
+    
+    # 使用完整路径
+    full_path = get_file_path(filename)
+    
+    if not os.path.exists(full_path):
+        st.error(f"Error: File not found at {full_path}")
         return []
 
-    with open(filename, 'r', encoding='utf-8') as file:
+    with open(full_path, 'r', encoding='utf-8') as file:
         for line in file:
             parts = line.strip().split('|')
             # Ensure the line has enough parts (Type|Q|Opt1|Opt2|Opt3|Opt4|Ans|Img)
             if len(parts) < 7: continue
+            
+            # 处理图片路径：如果文件名存在，将其转换为完整路径
+            img_name = parts[7] if len(parts) >= 8 and parts[7].strip() != "" else None
             
             q_data = {
                 "type": parts[0],
                 "question": parts[1],
                 "options": [parts[2], parts[3], parts[4], parts[5]],
                 "answer": parts[6],
-                "image": parts[7] if len(parts) >= 8 else None
+                "image": img_name # 这里只存文件名，展示时再拼接路径
             }
             questions.append(q_data)
     return questions
 
 def save_result_to_csv(name, score, answers):
     """Append user result to CSV file."""
-    file_exists = os.path.exists("results.csv")
+    # 使用完整路径
+    csv_path = get_file_path("results.csv")
+    
+    file_exists = os.path.exists(csv_path)
     
     # Prepare data dictionary
     data = {
@@ -44,8 +65,13 @@ def save_result_to_csv(name, score, answers):
     }
     df = pd.DataFrame(data)
     
-    # Append to CSV (header=True only if file doesn't exist)
-    df.to_csv("results.csv", mode='a', header=not file_exists, index=False)
+    # Append to CSV
+    try:
+        df.to_csv(csv_path, mode='a', header=not file_exists, index=False)
+        return True
+    except Exception as e:
+        st.error(f"Save failed: {e}")
+        return False
 
 # ==========================================
 # 2. Streamlit UI Logic
@@ -73,7 +99,7 @@ def main():
 
     # Check if questions loaded successfully
     if not questions:
-        st.warning("No questions loaded. Please check 'questions.txt'.")
+        st.warning(f"No questions loaded. Please check if 'questions.txt' is in: {BASE_DIR}")
         return
 
     # --- Phase 1: User Login ---
@@ -104,18 +130,19 @@ def main():
         
         # Save Button
         if st.button("Save Result & Next User"):
-            save_result_to_csv(
+            success = save_result_to_csv(
                 st.session_state.user_name, 
                 st.session_state.score, 
                 st.session_state.user_answers
             )
-            st.success("Data successfully saved to results.csv!")
-            time.sleep(1)
-            
-            # Reset Session State
-            for key in list(st.session_state.keys()):
-                del st.session_state[key]
-            st.rerun()
+            if success:
+                st.success("Data successfully saved to results.csv!")
+                time.sleep(1)
+                
+                # Reset Session State
+                for key in list(st.session_state.keys()):
+                    del st.session_state[key]
+                st.rerun()
         return
 
     # --- Phase 2: Quiz Loop ---
@@ -123,8 +150,9 @@ def main():
     q = questions[idx]
 
     # Progress Bar
-    progress = (idx) / len(questions)
-    st.progress(progress)
+    if len(questions) > 0:
+        progress = (idx) / len(questions)
+        st.progress(progress)
     st.subheader(f"Question {idx + 1} of {len(questions)}")
 
     # Display Question
@@ -132,10 +160,13 @@ def main():
 
     # Display Image (if Type B)
     if q['type'] == "Type B" and q['image']:
-        if os.path.exists(q['image']):
-            st.image(q['image'], caption="Please refer to the image above", width=400)
+        # 拼接图片的完整路径
+        img_full_path = get_file_path(q['image'])
+        
+        if os.path.exists(img_full_path):
+            st.image(img_full_path, caption="Please refer to the image above", width=400)
         else:
-            st.error(f"Image not found: {q['image']}")
+            st.error(f"Image not found at: {img_full_path}")
 
     # Options (Radio Button)
     user_choice = st.radio("Select your answer:", q['options'], index=None, key=f"q_{idx}")
