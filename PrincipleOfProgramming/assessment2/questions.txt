@@ -1,0 +1,4 @@
+Type A|What is the national dish of Malaysia, often served with sambal, anchovies, peanuts, and boiled egg?|Nasi Lemak|Chicken Rice|Roti Canai|Char Kway Teow|Nasi Lemak
+Type A|Which famous Malaysian drink is made by "pulling" the tea to create a frothy top?|Kopi O|Teh Tarik|Sirap Bandung|Milo Dinosaur|Teh Tarik
+Type B|Look at the image. What is the name of this grilled skewered meat dish?|Rendang|Satay|Otak-otak|Ayam Percik|Satay|satay.jpg
+Type B|Look at the image. This noodle soup dish is known for its spicy and sour fish broth. What is it?|Curry Mee|Pan Mee|Asam Laksa|Hokkien Mee|Asam Laksa|laksa.jpg
