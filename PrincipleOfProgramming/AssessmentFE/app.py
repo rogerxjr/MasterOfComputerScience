@@ -214,7 +214,9 @@ if view_mode == "User Dashboard":
             st.bar_chart(df_chart)
         else:
             st.info("Watch some movies to see your insights chart!")
-            # ---  Rating system UI  (Button clicks) ---
+
+    
+    # ---  Rating system UI  (Button clicks) ---
     st.subheader("🍿 Watch & Rate a Movie")
     available_movies = [m for m in sys.movie_database]
     
@@ -272,7 +274,7 @@ elif view_mode == "Admin Console":
             } for m in sys.movie_database]
             df_movies = pd.DataFrame(raw_data)
             
-            # --- [Admin Mod 2]: Custom Dimensions, Sorting, and Ranges ---
+            # ---: Custom Dimensions, Sorting, and Ranges ---
             st.write("**⚙️ Customize Data View**")
             filter_col1, filter_col2, filter_col3 = st.columns(3)
             
