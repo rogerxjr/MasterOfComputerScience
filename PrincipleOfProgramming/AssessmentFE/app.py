@@ -137,7 +137,7 @@ if view_mode == "User Dashboard":
             if len(filtered_movies) > 0:
                 st.success(f"✅ Found {len(filtered_movies)} movies!")
                 for movie in filtered_movies:
-                    st.write(f"- **{movie.title}** ({movie.year}) - {movie.genre}")
+                    st.write(f"- **{movie.title}** ({movie.year}) - {movie.genre} | ⭐ rate: {movie.get_average_rating():.1f}")
             else:
                 st.info("No movies found matching your criteria.")
 
